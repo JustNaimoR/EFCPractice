@@ -1,15 +1,10 @@
 package org.example;
 
-import redis.clients.jedis.Jedis;
-
-import java.util.HashMap;
-import java.util.Set;
+import java.util.function.Supplier;
 
 public class Main {
     public static void main( String[] args ) {
         RedisMap map = new RedisMap();
-
-
 
         map.put("key1", "value1");
         map.put("key2", "value2");
