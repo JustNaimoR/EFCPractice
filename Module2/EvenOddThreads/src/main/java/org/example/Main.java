@@ -5,56 +5,70 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Main {
-    private static volatile boolean evenTurn = true;
+    private static final Object lock = new Object();
 
     public static void main( String[] args ) {
-        Thread evenThread = new Thread() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 100; i += 2) {
-                    System.out.println(i);
-
-                    try {
-                        notifyAll();
-                        wait();
-                    } catch (InterruptedException ex) {
-                        log.error("exception when interrupting a thread - evenThread");
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        };
-
-        Thread oddThread = new Thread() {
-            @Override
-            public void run() {
-                for (int i = 1; i < 100; i += 2) {
-                    System.out.println(i);
-
-                    try {
-                        notifyAll();
-                        wait();
-                    } catch (InterruptedException ex) {
-                        log.error("exception when interrupting a thread - oddThread");
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        };
-
-        evenThread.start();
-        log.info("even working...");
-        oddThread.start();
-        log.info("odd working...");
+        Thread evenThread = new Thread(new EvenThread());
+        Thread oddThread = new Thread(new OddThread());
 
         try {
+            evenThread.start();
+            synchronized (lock) {   //todo неужели для использования notify() wait() все время приходится их оборачивать в синхр-блоки?
+                lock.wait();    // чтобы вначале стартовал именно evenThread
+            }
+            oddThread.start();
+
             evenThread.join();
             oddThread.join();
-            log.info("work is over");
-        } catch (InterruptedException ex) {
-            log.error("exception when interrupting a thread - main");
-            ex.printStackTrace();
+        } catch (InterruptedException ignored) {
+            log.error("main() interrupted");
+
+            evenThread.interrupt();
+            oddThread.interrupt();
+        }
+
+        log.info("work is over");
+    }
+
+    private static class EvenThread implements Runnable {
+        @Override
+        public void run() {
+            for (int i = 0; i < 100; i += 2) {
+                System.out.println(i);
+
+                try {
+                    synchronized (lock) {
+                        lock.notify();
+
+                        if (i < 98)             // последняя итерация цикла
+                            lock.wait();
+                    }
+                } catch (InterruptedException ignored) {
+                    log.error("Thread interrupted - " + this.getClass().getName());
+                    return;
+                }
+            }
         }
     }
 
+    private static class OddThread implements Runnable {
+        @Override
+        public void run() {
+            for (int i = 1; i < 100; i += 2) {
+                System.out.println(i);
+
+                try {
+                    synchronized (lock) {
+                        lock.notify();
+
+                        if (i < 99)        // последняя итерация цикла
+                            lock.wait();
+                    }
+                } catch (InterruptedException ignored) {
+                    log.error("Thread interrupted - " + this.getClass().getName());
+                    return;
+                }
+            }
+        }
+    }
 }
