@@ -1,11 +1,13 @@
 package org.example;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class RingBuffer {
-    private final int[] buffer;     // volatile ???
+    private final int[] buffer;
     private final int size;
-    private int start = 0;          // volatile ???
-    private int end = 0;            // volatile ???
-    private int counter = 0;        // volatile ???
+    private AtomicInteger start = new AtomicInteger(0);
+    private AtomicInteger end = new AtomicInteger(0);
+    private AtomicInteger counter = new AtomicInteger(0);
 
     public RingBuffer(int size) {
         if (size < 1)
@@ -18,9 +20,9 @@ public class RingBuffer {
 
 
     public synchronized void put(int val) {
-        buffer[end] = val;      // !!!
+        buffer[end.get()] = val;
 
-        if (end == start && counter > 0) {
+        if (end.get() == start.get() && counter.get() > 0) {
             incStartPoint();
         }
         incEndPoint();
@@ -29,17 +31,19 @@ public class RingBuffer {
 
     // удаление oldest элемента и его возврат
     public synchronized int remove() {
-        if (counter == 0)
+        if (counter.get() == 0)
             throw new RingBufferIsEmptyException();
 
-        int removed = buffer[start];    // !!!
+        int removed = buffer[start.get()];    // !!!
         incStartPoint();
         decCounter();
         return removed;
     }
 
     public void clear() {
-        end = start = counter = 0;
+        end.set(0);
+        start.set(0);
+        counter.set(0);
     }
 
     public void putAll(int[] arr) {
@@ -55,29 +59,31 @@ public class RingBuffer {
     }
 
     public int getCounter() {
-        return counter;
+        return counter.get();
     }
 
 
 
     // Увеличить на единицу end и вернуть новое значение
     private int incEndPoint() {
-        return end = (end + 1) % buffer.length;
+        end.set((end.get() + 1) % buffer.length);
+        return end.get();
     }
 
     // Увеличить на единицу start и вернуть новое значение
     private int incStartPoint() {
-        return start = (start + 1) % buffer.length;
+        start.set((start.get() + 1) % buffer.length);
+        return start.get();
     }
 
     // Увеличить counter, вернуть новое значение
     private int incCounter() {
-        if (counter == size)    // Всегда не больше размера буффера
-            return counter;
-        return ++counter;
+        if (counter.get() == size)    // Всегда не больше размера буффера
+            return counter.get();
+        return counter.incrementAndGet();
     }
 
     private int decCounter() {
-        return --counter;
+        return counter.decrementAndGet();
     }
 }
