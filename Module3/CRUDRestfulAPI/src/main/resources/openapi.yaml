@@ -4,6 +4,8 @@ info:
   description: Title
   version: 1.0.0
 servers:
+  - url: https://server.com
+    description: New server
   - url: 'https'
 paths:
   

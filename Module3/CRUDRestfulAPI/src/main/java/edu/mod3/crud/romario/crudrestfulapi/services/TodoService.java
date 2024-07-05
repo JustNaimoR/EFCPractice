@@ -6,6 +6,7 @@ import edu.mod3.crud.romario.crudrestfulapi.exceptions.TodoTaskNotFoundException
 import edu.mod3.crud.romario.crudrestfulapi.repository.ToDoRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class TodoService {
         return repository.saveAndRetrieveId(TodoTaskDto.fromDto(dto));
     }
 
+    @Cacheable("tasks")
     public List<TodoTask> getAll() {
         log.info("getting all tasks...");
         return repository.getAll();
