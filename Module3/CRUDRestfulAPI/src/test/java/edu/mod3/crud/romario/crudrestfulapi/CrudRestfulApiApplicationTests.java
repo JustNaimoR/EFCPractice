@@ -55,7 +55,8 @@ class IntegrationTests {
                     .description("do exercises")
                     .build();
 
-            MockHttpServletResponse response = mvc.perform(post("/todo/create")
+            MockHttpServletResponse response = mvc.perform(
+                    post("/todo/create")
                     .content(objectMapper.writeValueAsString(dto))
                     .contentType(MediaType.APPLICATION_JSON)
             ).andReturn().getResponse();
@@ -75,7 +76,8 @@ class IntegrationTests {
                     .description(null)  // 'description can't be null'
                     .build();
 
-            MockHttpServletResponse response = mvc.perform(post("/todo/create")
+            MockHttpServletResponse response = mvc.perform(
+                    post("/todo/create")
                     .content(objectMapper.writeValueAsString(dto))
                     .contentType(MediaType.APPLICATION_JSON)
             ).andReturn().getResponse();
@@ -95,7 +97,7 @@ class IntegrationTests {
                 curList.add(node.asText());
             }
 
-            assertTrue(correctList.containsAll(curList));           // 'messages' содержат все сообщения об ошибках
+            assertTrue(correctList.containsAll(curList));           // 'messages' содержат все требуемые сообщения об ошибках
             assertTrue(curList.containsAll(correctList));
         }
     }

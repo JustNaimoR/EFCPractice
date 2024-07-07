@@ -8,3 +8,4 @@
 - unit & integration tests
 - cache layer
 - swagger 
++ интеграционные тесты с использованием _**test containers**_
