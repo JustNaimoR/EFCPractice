@@ -1,11 +1,2 @@
-### Простое CRUD приложение для добавления, чтения, удаления todo задач в БД
+### CRUD приложение с использованием голого Hibernate для работы с бд (дублирует проект из третьего модуля)
 
-Из используемого стека:
-- RESTfull api
-- postgreSQL
-- Flyway для миграции
-- jdbcTemplate
-- unit & integration tests
-- cache layer
-- swagger 
-+ интеграционные тесты с использованием _**test containers**_
