@@ -4,7 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.5"
 }
 
-group = "edu.mod3.crud.romario"
+group = "edu.mod5.crud.romario"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
