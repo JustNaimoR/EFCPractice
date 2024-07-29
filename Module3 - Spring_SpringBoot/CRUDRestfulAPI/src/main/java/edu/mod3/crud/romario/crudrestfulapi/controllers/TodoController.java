@@ -1,6 +1,8 @@
 package edu.mod3.crud.romario.crudrestfulapi.controllers;
 
+import edu.mod3.crud.romario.crudrestfulapi.dto.PageTodoTaskDto;
 import edu.mod3.crud.romario.crudrestfulapi.dto.TodoTaskDto;
+import edu.mod3.crud.romario.crudrestfulapi.dto.mappers.TodoTaskDtoMapper;
 import edu.mod3.crud.romario.crudrestfulapi.services.TodoService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,31 +19,43 @@ import java.util.stream.Collectors;
 @RequestMapping("/todo")
 @AllArgsConstructor
 public class TodoController implements ITodoController {
+    private TodoTaskDtoMapper todoTaskDTOMapper;
     private TodoService service;
 
     @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, String> create(@RequestBody @Valid TodoTaskDto dto) {
-        return Collections.singletonMap("id", "" + service.createToDoTask(dto));
+    public ResponseEntity<Map<String, String>> create(@RequestBody @Valid TodoTaskDto dto) {
+        return new ResponseEntity<>(
+                Collections.singletonMap("id", "" + service.createToDoTask(dto)),
+                HttpStatus.CREATED
+        );
     }
 
     @GetMapping("/all")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<TodoTaskDto>> getAll() {
-        return ResponseEntity.ok(service.getAll().stream()
-                .map(TodoTaskDto::toDto)
-                .collect(Collectors.toList()));
+    public ResponseEntity<PageTodoTaskDto> getAll(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize
+    ) {
+        List<TodoTaskDto> list = service.getAll(pageNo, pageSize).stream()
+                .map(todoTaskDTOMapper::toDto)
+                .toList();
+        int all = service.countAll();
+        int totalPages = (int) Math.ceil((double) all / pageSize);
+
+        return ResponseEntity.ok(
+                new PageTodoTaskDto(
+                        list, pageNo, pageSize, all, totalPages, pageNo + 1 == totalPages
+                )
+        );
     }
 
     @PutMapping("/update/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public void update(@PathVariable int id, @RequestBody @Valid TodoTaskDto dto) {
-        service.update(id, TodoTaskDto.fromDto(dto));
+        service.update(id, todoTaskDTOMapper.fromDto(dto));
     }
 
     @DeleteMapping("/delete/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable int id) {
         service.delete(id);
     }
+
 }

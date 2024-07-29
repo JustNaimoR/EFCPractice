@@ -34,8 +34,13 @@ public class ToDoRepository {
         return (int) keyHolder.getKey();
     }
 
-    public List<TodoTask> getAll() {
-        return jdbcTemplate.query("select * from todo_table", new BeanPropertyRowMapper<>(TodoTask.class));
+    public List<TodoTask> getAll(int pageNo, int pageSize) {
+        return jdbcTemplate.query("select * from todo_table limit ? offset ?",
+                new BeanPropertyRowMapper<>(TodoTask.class), pageSize, pageNo * pageSize);
+    }
+
+    public int countAll() {
+        return jdbcTemplate.queryForObject("select count(*) from todo_table", Integer.class);
     }
 
     public void update(int id, TodoTask task) {

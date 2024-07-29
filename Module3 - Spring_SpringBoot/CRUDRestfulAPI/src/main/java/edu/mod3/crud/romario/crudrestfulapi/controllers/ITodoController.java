@@ -1,5 +1,6 @@
 package edu.mod3.crud.romario.crudrestfulapi.controllers;
 
+import edu.mod3.crud.romario.crudrestfulapi.dto.PageTodoTaskDto;
 import edu.mod3.crud.romario.crudrestfulapi.dto.TodoTaskDto;
 import edu.mod3.crud.romario.crudrestfulapi.exceptions.ResponseError;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +48,7 @@ public interface ITodoController {
                     )
             }
     )
-    Map<String, String> create(TodoTaskDto dto);
+    ResponseEntity<Map<String, String>> create(TodoTaskDto dto);
 
     @Operation(
             summary = "получение списка всех задач",
@@ -61,7 +62,7 @@ public interface ITodoController {
                     )
             }
     )
-    ResponseEntity<List<TodoTaskDto>> getAll();
+    ResponseEntity<PageTodoTaskDto> getAll(int pageNo, int pageSize);
 
     @Operation(
             summary = "обновление todo задачи",

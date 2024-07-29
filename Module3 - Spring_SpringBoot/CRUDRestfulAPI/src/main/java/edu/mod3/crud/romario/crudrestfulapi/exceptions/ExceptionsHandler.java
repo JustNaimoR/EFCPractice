@@ -1,7 +1,9 @@
 package edu.mod3.crud.romario.crudrestfulapi.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,8 +21,7 @@ import java.util.stream.Collectors;
 public class ExceptionsHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseError handleValidationError(MethodArgumentNotValidException exc) {
+    public ResponseEntity<ResponseError> handleValidationError(MethodArgumentNotValidException exc) {
         log.warn("MethodArgumentNotValidException was thrown. Most likely there were invalid values in the request");
 
         BindingResult result = exc.getBindingResult();
@@ -30,14 +31,29 @@ public class ExceptionsHandler {
                 .map(err -> err.getField() + " - " + err.getDefaultMessage())
                 .collect(Collectors.toList());
 
-        return new ResponseError(messages);
+        return new ResponseEntity<>(
+                new ResponseError(messages),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(TodoTaskNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseError handleTodoTaskNotFoundException(TodoTaskNotFoundException exc) {
+    public ResponseEntity<ResponseError> handleTodoTaskNotFoundException(TodoTaskNotFoundException exc) {
         log.warn("TodoTaskNotFoundException was thrown");
 
-        return new ResponseError(List.of(exc.getMessage()));
+        return new ResponseEntity<>(
+                new ResponseError(List.of(exc.getMessage())),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ResponseError> handleDataAccessException(DataAccessException exc) {
+        log.warn("DataAccessException was thrown");
+
+        return new ResponseEntity<>(
+                new ResponseError(List.of(exc.getMessage())),
+                HttpStatus.BAD_REQUEST
+        );
     }
 }
