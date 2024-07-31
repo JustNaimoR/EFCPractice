@@ -58,4 +58,12 @@ public class TodoController implements ITodoController {
         service.delete(id);
     }
 
+    @GetMapping("/getById")
+    public ResponseEntity<TodoTaskDto> getById(
+            @RequestParam("id") int id
+    ) {
+        return ResponseEntity.ok(
+                todoTaskDTOMapper.toDto(service.getById(id))
+        );
+    }
 }
