@@ -1,7 +1,6 @@
 package edu.mod6.linkabbreviationsservice.services;
 
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
-import edu.mod6.linkabbreviationsservice.dto.mappers.RegisterLinkDtoMapper;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import edu.mod6.linkabbreviationsservice.entities.TemporaryLinksPair;
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
@@ -18,13 +17,13 @@ import java.util.Optional;
 public class TemporaryLinksPairService {
     private final ShortenLinkIdSequenceService shortenLinkIdSequenceService;
     private final TemporaryLinksPairRepository temporaryLinksPairRepository;
-    private final RegisterLinkDtoMapper registerLinkDtoMapper;
 
     public String register(RegisterLinkDto dto) {
-        TemporaryLinksPair temporaryLinksPair = (TemporaryLinksPair) registerLinkDtoMapper.fromDto(dto);
+        TemporaryLinksPair temporaryLinksPair = (TemporaryLinksPair) dto.fromDto();
         String shortenLink = shortenLinkIdSequenceService.getNextShortenLink();
 
         temporaryLinksPair.setShortLink(shortenLink);
+        temporaryLinksPair.getAllies().forEach(ally -> ally.setLinksPair(temporaryLinksPair));
 
         temporaryLinksPairRepository.save(temporaryLinksPair);
 

@@ -1,7 +1,6 @@
 package edu.mod6.linkabbreviationsservice.services;
 
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
-import edu.mod6.linkabbreviationsservice.dto.mappers.RegisterLinkDtoMapper;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
 import edu.mod6.linkabbreviationsservice.exceptions.TempLinkExpiredException;
@@ -19,11 +18,26 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LinksPairService {
     private final ShortenLinkIdSequenceService shortenLinkIdSequenceService;
-    private final RegisterLinkDtoMapper registerLinkDtoMapper;
     private final LinksPairRepository linksPairRepository;
     private final TemporaryLinksPairService temporaryLinksPairService;
+    private final LinkAlliesService linkAlliesService;
 
-    @Transactional()
+    @Transactional
+    public RedirectView linkAllyAbbreviation(String ally) {
+        LinksPair linksPair = linkAlliesService.getLinksPairByAlly(ally);
+        String shortLink = linksPair.getShortLink();
+
+        if (temporaryLinksPairService.linkIsTemporary(shortLink)) {
+            if (temporaryLinksPairService.linkIsExpired(shortLink))
+                throw new TempLinkExpiredException("Short link = '" + shortLink + "' is expired");
+        }
+
+        String srcLink = linksPair.getSrcLink();
+
+        return new RedirectView(srcLink);
+    }
+
+    @Transactional
     public RedirectView linksAbbreviation(String shortLink) {
         if (temporaryLinksPairService.linkIsTemporary(shortLink)) {
             if (temporaryLinksPairService.linkIsExpired(shortLink))
@@ -42,10 +56,11 @@ public class LinksPairService {
 
     @Transactional
     public String register(RegisterLinkDto dto) {
-        LinksPair linksPair = registerLinkDtoMapper.fromDto(dto);
+        LinksPair linksPair = dto.fromDto();
         String shortenLink = shortenLinkIdSequenceService.getNextShortenLink();
 
         linksPair.setShortLink(shortenLink);
+        linksPair.getAllies().forEach(ally -> ally.setLinksPair(linksPair));
 
         linksPairRepository.save(linksPair);
 

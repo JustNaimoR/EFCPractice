@@ -1,11 +1,12 @@
 package edu.mod6.linkabbreviationsservice.controllers;
 
+import edu.mod6.linkabbreviationsservice.dto.LinksPairDto;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
-import edu.mod6.linkabbreviationsservice.entities.LinksPair;
-import edu.mod6.linkabbreviationsservice.entities.TemporaryLinksPair;
+import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
 import edu.mod6.linkabbreviationsservice.services.LinksPairService;
 import edu.mod6.linkabbreviationsservice.services.TemporaryLinksPairService;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +21,21 @@ import java.util.stream.Stream;
 public class LinksControllerImpl implements LinksController {
     private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinksPairService linksPairService;
+    private final LinksPairDtoMapper linksPairDtoMapper;
+
+    @GetMapping("/ally")
+    public RedirectView linkAllies(@PathParam("ally") String ally) {
+        return linksPairService.linkAllyAbbreviation(ally);
+    }
 
     @GetMapping("/{shortenedLink}")
     public RedirectView linksAbbreviation(@PathVariable("shortenedLink") String shortLink) {
         return linksPairService.linksAbbreviation(shortLink);
     }
 
-
     @Override
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterLinkDto dto) {     //todo написать обработку исключения при валидации
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterLinkDto dto) {
         String shortLink = "http://localhost:8080/linksAbbreviation/";
 
         if (dto.isTemporary()) {
@@ -45,13 +51,15 @@ public class LinksControllerImpl implements LinksController {
 
     @Override
     @GetMapping("/all")
-    public ResponseEntity<List<LinksPair>> getAll() {
-        List<LinksPair> list_1 = linksPairService.getAll();
-        List<TemporaryLinksPair> list_2 = temporaryLinksPairService.getAll();
+    public ResponseEntity<List<LinksPairDto>> getAll() {
+        List<LinksPairDto> set = Stream.concat(
+                        linksPairService.getAll().stream(),
+                        temporaryLinksPairService.getAll().stream()
+                )
+                .map(linksPairDtoMapper::toDto)
+                .toList();
 
-        return ResponseEntity.ok(
-                Stream.concat(list_1.stream(), list_2.stream()).toList()
-        );
+        return ResponseEntity.ok(set);
     }
 
     @Override
