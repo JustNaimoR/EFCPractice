@@ -20,8 +20,11 @@ import java.util.List;
 @AllArgsConstructor
 @CacheConfig(cacheNames="totoTasksCache")
 public class TodoService {
+
     private TodoTaskDtoMapper todoTaskMapper;
     private ToDoRepository repository;
+
+
 
     @CachePut(key = "#result")          // вкладываем значение по полученному id в кеш
     public int createToDoTask(TodoTaskDto dto) {
@@ -40,12 +43,16 @@ public class TodoService {
 
     public List<TodoTask> getAll() {
         log.info("getting all tasks...");
-        return repository.getAll(0, countAll());
+        return repository.getAll();
     }
 
     public List<TodoTask> getAll(int pageNo, int pageSize) {
         log.info("getting all tasks with pageSize={} and pageNo={}...", pageSize, pageNo);
         return repository.getAll(pageNo, pageSize);
+    }
+
+    public boolean pageIsLast(int pageNo, int pageSize) {
+        return repository.pageIsLast(pageNo, pageSize);
     }
 
     @CachePut(key = "#id", condition = "#root.target.existsById(#id)", value = "#task")
@@ -71,10 +78,6 @@ public class TodoService {
     public boolean existsById(int id) {
         log.info("checking if task with id - {} exists", id);
         return repository.existsById(id);
-    }
-
-    public int countAll() {
-        return repository.countAll();
     }
 
     public int getIdByTitleAndDescription(String title, String description) {

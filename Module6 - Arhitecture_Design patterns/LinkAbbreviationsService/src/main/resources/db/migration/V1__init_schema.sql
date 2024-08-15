@@ -12,9 +12,10 @@ CREATE TABLE IF NOT EXISTS temporary_links_pair
     CONSTRAINT pk_temporary_links_pair PRIMARY KEY (short_link)
 );
 
-ALTER TABLE links_pair
-    ADD CONSTRAINT uc_links_pair_src_link UNIQUE (src_link);
+ALTER TABLE links_pair DROP CONSTRAINT IF EXISTS uc_links_pair_src_link;
+ALTER TABLE links_pair ADD CONSTRAINT uc_links_pair_src_link UNIQUE (src_link) ;
 
+ALTER TABLE temporary_links_pair DROP CONSTRAINT IF EXISTS FK_TEMPORARY_LINKS_PAIR_ON_SHORT_LINK;
 ALTER TABLE temporary_links_pair
     ADD CONSTRAINT FK_TEMPORARY_LINKS_PAIR_ON_SHORT_LINK FOREIGN KEY (short_link) REFERENCES links_pair (short_link);
 

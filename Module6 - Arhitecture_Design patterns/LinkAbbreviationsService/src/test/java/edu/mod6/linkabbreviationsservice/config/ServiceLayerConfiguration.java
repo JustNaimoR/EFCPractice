@@ -1,6 +1,5 @@
 package edu.mod6.linkabbreviationsservice.config;
 
-import edu.mod6.linkabbreviationsservice.dto.mappers.RegisterLinkDtoMapper;
 import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
 import edu.mod6.linkabbreviationsservice.repositories.ShortenLinkIdSequenceRepository;
 import edu.mod6.linkabbreviationsservice.repositories.TemporaryLinksPairRepository;

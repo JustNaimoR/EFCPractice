@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Set;
 
 @Builder
 public record PageTodoTaskDto(
-        @JsonProperty("items") List<TodoTaskDto> list,
+        @JsonProperty("items") Set<TodoTaskDto> set,
         int pageNo,
         int pageSize,
-        int totalElements,
-        int totalPages,
         boolean last
 ) { }

@@ -1,4 +1,4 @@
-package edu.mod3.crud.romario.crudrestfulapi.config;
+package config;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
