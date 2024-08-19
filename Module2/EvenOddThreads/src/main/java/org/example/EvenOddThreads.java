@@ -19,7 +19,7 @@ public class EvenOddThreads {
     private final ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<>();
 
     public static void main(String[] args) {
-        Queue<Integer> queue = new EvenOddThreads().doEvenOdd(100);
+        Queue<Integer> queue = new EvenOddThreads().doEvenOdd(5);
 
         System.out.println(queue);
     }
@@ -65,19 +65,23 @@ public class EvenOddThreads {
         public void run() {
             for (int i = (even? 0: 1); i < integer.get(); i += 2) {
                 try {
+                    log.info("{} - перед locker.lock(), i = {}", getName(), i);
                     locker.lock();
+                    log.info("{} - после locker.lock(), i = {}", getName(), i);
 
 //                    queue.add(i);
                     System.out.println(i);
 
                     condition.signal();
+                    log.info("{} - после condition.signal(), i = {}", getName(), i);
                     if (i + 1 < integer.get()) {  // Не последняя итерация
+                        log.info("{} - перед condition.await(), i = {}", getName(), i);
                         condition.await();
+                        log.info("{} - после condition.await(), i = {}", getName(), i);
                     }
                 } catch (InterruptedException ignored) {
                     log.error("{} interrupted", getName());
-                    locker.unlock();
-                    return;
+                    break;
                 }
             }
             locker.unlock();
@@ -89,53 +93,4 @@ public class EvenOddThreads {
             return even? "Even thread": "Odd thread";
         }
     }
-
-//    private class EvenThread implements Runnable {
-//        @Override
-//        public void run() {
-//            for (int i = 0; i < integer.get(); i += 2) {
-//                try {
-//                    locker.lock();
-//
-//                    System.out.println(i);
-//
-//                    condition.signal();
-//                    while (i + 1 < integer.get()) {  // Не последняя итерация
-//                        condition.await();
-//                    }
-//                } catch (InterruptedException ignored) {
-//                    log.error("Even Thread interrupted");
-//                    locker.unlock();
-//                    return;
-//                }
-//            }
-//            locker.unlock();
-//
-//            log.info("Even thread is done.");
-//        }
-//    }
-//    private class OddThread implements Runnable {
-//        @Override
-//        public void run() {
-//            for (int i = 1; i < integer.get(); i += 2) {
-//                try {
-//                    locker.lock();
-//
-//                    System.out.println(i);
-//
-//                    condition.signal();
-//                    while (i + 1 < integer.get()) {     // Не последняя итерация
-//                        condition.await();
-//                    }
-//                } catch (InterruptedException ignored) {
-//                    log.error("Odd Thread interrupted");
-//                    locker.unlock();
-//                    return;
-//                }
-//            }
-//            locker.unlock();
-//
-//            log.info("Odd thread is done.");
-//        }
-//    }
 }
