@@ -3,20 +3,25 @@ package org.example;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 @Slf4j
 public class Main {
-    private static final Object lock = new Object();
+    static ReentrantLock locker = new ReentrantLock();
+    static Condition condition = locker.newCondition();
 
     public static void main( String[] args ) {
         Thread evenThread = new Thread(new EvenThread());
         Thread oddThread = new Thread(new OddThread());
 
         try {
+            locker.lock();
             evenThread.start();
-            synchronized (lock) {   //todo неужели для использования notify() wait() все время приходится их оборачивать в синхр-блоки?
-                lock.wait();    // чтобы вначале стартовал именно evenThread
-            }
+            condition.await();
             oddThread.start();
+            locker.unlock();
+
 
             evenThread.join();
             oddThread.join();
@@ -25,6 +30,8 @@ public class Main {
 
             evenThread.interrupt();
             oddThread.interrupt();
+        } finally {
+            locker.unlock();
         }
 
         log.info("work is over");
@@ -34,20 +41,23 @@ public class Main {
         @Override
         public void run() {
             for (int i = 0; i < 100; i += 2) {
-                System.out.println(i);
-
                 try {
-                    synchronized (lock) {
-                        lock.notify();
+                    locker.lock();
 
-                        if (i < 98)             // последняя итерация цикла
-                            lock.wait();
-                    }
+                    System.out.println(i);
+
+                    condition.signal();
+                    condition.await();
                 } catch (InterruptedException ignored) {
-                    log.error("Thread interrupted - " + this.getClass().getName());
+                    log.error("Even Thread interrupted");
                     return;
+                } finally {
+                    condition.signal();
+                    locker.unlock();
                 }
             }
+
+            log.info("Even thread is done.");
         }
     }
 
@@ -55,20 +65,22 @@ public class Main {
         @Override
         public void run() {
             for (int i = 1; i < 100; i += 2) {
-                System.out.println(i);
-
                 try {
-                    synchronized (lock) {
-                        lock.notify();
+                    locker.lock();
 
-                        if (i < 99)        // последняя итерация цикла
-                            lock.wait();
-                    }
+                    System.out.println(i);
+
+                    condition.signal();
+                    condition.await();
                 } catch (InterruptedException ignored) {
-                    log.error("Thread interrupted - " + this.getClass().getName());
+                    log.error("Odd Thread interrupted");
                     return;
+                } finally {
+                    locker.unlock();
                 }
             }
+
+            log.info("Odd thread is done.");
         }
     }
 }
