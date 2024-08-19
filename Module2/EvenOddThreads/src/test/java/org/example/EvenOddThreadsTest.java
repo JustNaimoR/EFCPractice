@@ -16,9 +16,9 @@ public class EvenOddThreadsTest {
     void evenNumberOfN_50Attempts() {
         int N = 100;
         int attempts = 50;
+        Queue<Integer> expected = new LinkedList<>(IntStream.range(0, N).boxed().toList());
 
         for (int i = 0; i < attempts; i++) {
-            Queue<Integer> expected = new LinkedList<>(IntStream.range(0, N).boxed().toList());
             Queue<Integer> result = evenOddThreads.doEvenOdd(N);
 
             Assertions.assertEquals(expected, result);
@@ -29,9 +29,9 @@ public class EvenOddThreadsTest {
     void oddNumberOfN_50Attempts() {
         int N = 101;
         int attempts = 50;
+        Queue<Integer> expected = new LinkedList<>(IntStream.range(0, N).boxed().toList());
 
         for (int i = 0; i < attempts; i++) {
-            Queue<Integer> expected = new LinkedList<>(IntStream.range(0, N).boxed().toList());
             Queue<Integer> result = evenOddThreads.doEvenOdd(N);
 
             Assertions.assertEquals(expected, result);

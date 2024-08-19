@@ -1,11 +1,8 @@
 package org.example;
 
-
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.OutputStream;
 import java.util.Queue;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
