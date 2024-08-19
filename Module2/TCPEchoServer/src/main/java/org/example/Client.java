@@ -20,11 +20,16 @@ public class Client implements Runnable {
         this.port = port;
         this.host = host;
 
-        start();
+        try {
+            start();
+        } catch (ClientException exc) {
+            log.error("Client hasn't been started. msg={}", exc.getMessage());
+            throw new ClientException(exc);
+        }
     }
 
     // Запуск клиента
-    private void start() {
+    private void start() throws ClientException {
         try {
             clientSocket = new Socket(host, port);
 
@@ -38,7 +43,7 @@ public class Client implements Runnable {
     }
 
     // Отдельный метод для закрытия сокета чтобы не пришлось везде использовать try-catch блоки
-    private void closeSocket() {
+    private void closeSocket() throws ClientException {
         try {
             clientSocket.close();
         } catch (IOException exc) {
@@ -49,7 +54,7 @@ public class Client implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run() throws ClientException {
         try (
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))

@@ -25,7 +25,7 @@ public class ClientsProcessingThread implements Runnable {
         thread.start();
     }
 
-    private void closeSocket() {
+    private void closeSocket() throws ClientProcessingException {
         try {
             clientSocket.close();
         } catch (IOException exc) {
@@ -36,7 +36,7 @@ public class ClientsProcessingThread implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run() throws ClientProcessingException {
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()))

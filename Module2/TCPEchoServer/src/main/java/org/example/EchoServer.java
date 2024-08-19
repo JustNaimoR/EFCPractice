@@ -22,7 +22,7 @@ public class EchoServer implements Runnable {
     }
 
     // Запуск сервера
-    private void start() {
+    private void start() throws ServerException {
         try {
             serverSocket = new ServerSocket(port);
 
@@ -37,7 +37,7 @@ public class EchoServer implements Runnable {
     }
 
     // Остановка работы сервера
-    public void stop() {
+    public void stop() throws ServerException {
         log.info("Server stopped");
 
         try {
@@ -52,7 +52,7 @@ public class EchoServer implements Runnable {
     }
 
     // Отдельный метод для закрытия сокета чтобы не пришлось везде использовать try-catch блоки
-    private void closeSocket() {
+    private void closeSocket() throws ServerException {
         try {
             serverSocket.close();
         } catch (IOException exc) {
@@ -63,7 +63,7 @@ public class EchoServer implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run() throws ServerException {
         int counter = 0;
 
         try {
