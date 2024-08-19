@@ -19,22 +19,26 @@ public class RingBuffer {
 
 
 
-    public synchronized void put(int val) {
+    public void put(int val) {
         buffer[end.get()] = val;
 
         if (end.get() == start.get() && counter.get() > 0) {
-            incStartPoint();
+            synchronized (this) {
+                if (end.get() == start.get() && counter.get() > 0) {
+                    incStartPoint();
+                }
+            }
         }
         incEndPoint();
         incCounter();
     }
 
     // удаление oldest элемента и его возврат
-    public synchronized int remove() {
+    public int remove() {
         if (counter.get() == 0)
             throw new RingBufferIsEmptyException();
 
-        int removed = buffer[start.get()];    // !!!
+        int removed = buffer[start.get()];
         incStartPoint();
         decCounter();
         return removed;
@@ -65,20 +69,20 @@ public class RingBuffer {
 
 
     // Увеличить на единицу end и вернуть новое значение
-    private int incEndPoint() {
+    private synchronized int incEndPoint() {
         end.set((end.get() + 1) % buffer.length);
         return end.get();
     }
 
     // Увеличить на единицу start и вернуть новое значение
-    private int incStartPoint() {
+    private synchronized int incStartPoint() {
         start.set((start.get() + 1) % buffer.length);
         return start.get();
     }
 
     // Увеличить counter, вернуть новое значение
-    private int incCounter() {
-        if (counter.get() == size)    // Всегда не больше размера буффера
+    private synchronized int incCounter() {
+        if (counter.get() == size)    // Всегда не больше размера буфера
             return counter.get();
         return counter.incrementAndGet();
     }

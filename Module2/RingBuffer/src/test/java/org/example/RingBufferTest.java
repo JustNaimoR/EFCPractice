@@ -1,6 +1,6 @@
 package org.example;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class RingBufferTest {
     private final RingBuffer buffer = new RingBuffer(5);
 
-    @BeforeEach
+    @AfterEach
     public void clearBuffer() {
         buffer.clear();
     }
@@ -38,7 +38,7 @@ public class RingBufferTest {
         assertThrows(RingBufferIsEmptyException.class, buffer::remove);     // Исключение, т.к. пустой
     }
 
-    // Заполнить буффер бОльшим числом значений, чем его размер и проверить функциональность
+    // Заполнить буфер большим числом значений, чем его размер и проверить функциональность
     @Test
     public void putTooMuchTest() {
         int[] values = {1, 2, 3, 4, 5, 6, 7};     // values.length > buffer.size
@@ -57,12 +57,4 @@ public class RingBufferTest {
         assertEquals(buffer.remove(), 8);
         assertThrows(RingBufferIsEmptyException.class, buffer::remove);
     }
-
-
-
-//    // Проверка многопоточной вставки
-//    @Test
-//    public void multiThreadPutTest() {
-//
-//    }
 }
