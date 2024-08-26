@@ -1,6 +1,8 @@
 package org.example;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntUnaryOperator;
+import java.util.function.UnaryOperator;
 
 public class RingBuffer {
     private final int[] buffer;
@@ -69,22 +71,33 @@ public class RingBuffer {
 
 
     // Увеличить на единицу end и вернуть новое значение
-    private synchronized int incEndPoint() {
-        end.set((end.get() + 1) % buffer.length);
-        return end.get();
+    private int incEndPoint() {
+        while (true) {
+            int cur = end.get();
+            int next = (cur + 1) % buffer.length;
+
+            if (end.compareAndSet(cur, next))
+                return next;
+        }
     }
 
     // Увеличить на единицу start и вернуть новое значение
-    private synchronized int incStartPoint() {
-        start.set((start.get() + 1) % buffer.length);
-        return start.get();
+    private int incStartPoint() {
+        IntUnaryOperator uo = (val) -> (val + 1) % buffer.length;
+
+        end.getAndUpdate(uo);
+        return end.get();       //todo ну вот тут конечно вопрос, т.к. другой поток может поменять end до того как вернется значение.
     }
 
     // Увеличить counter, вернуть новое значение
-    private synchronized int incCounter() {
-        if (counter.get() == size)    // Всегда не больше размера буфера
-            return counter.get();
-        return counter.incrementAndGet();
+    private int incCounter() {
+        if (counter.get() < size) {     // Всегда не больше размера буфера
+            synchronized (this) {
+                if (counter.get() < size)
+                    return counter.incrementAndGet();
+            }
+        }
+        return counter.get();
     }
 
     private int decCounter() {

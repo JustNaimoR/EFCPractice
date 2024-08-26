@@ -1,0 +1,1 @@
+insert into client values (0, 'romario', 'romario22@gmail.com');
