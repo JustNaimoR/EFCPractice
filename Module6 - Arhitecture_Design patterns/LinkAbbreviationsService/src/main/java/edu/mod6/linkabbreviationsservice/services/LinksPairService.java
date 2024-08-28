@@ -14,6 +14,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.List;
 import java.util.Optional;
 
+
+
 @Service
 @RequiredArgsConstructor
 public class LinksPairService {
@@ -21,6 +23,8 @@ public class LinksPairService {
     private final LinksPairRepository linksPairRepository;
     private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinkAlliesService linkAlliesService;
+
+
 
     @Transactional
     public RedirectView linkAllyAbbreviation(String ally) {

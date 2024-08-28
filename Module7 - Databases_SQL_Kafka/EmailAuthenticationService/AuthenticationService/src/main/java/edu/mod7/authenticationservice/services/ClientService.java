@@ -20,4 +20,8 @@ public class ClientService {
 
         return opt.orElseThrow(ClientNotFoundException::new);
     }
+
+    public void save(Client client) {
+        clientRepository.save(client);
+    }
 }

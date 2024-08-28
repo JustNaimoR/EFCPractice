@@ -19,8 +19,10 @@ public class KafkaConsumerService {
             topics = "${kafka.topics.email-verification-topic}",
             groupId = "${kafka.email-verification-group-id}"
     )
-    public void receiveEmail(EmailVerificationDto dto) {
-        log.info("Запрошено новое подтверждение '{}'", dto);
+    public void receiveEmail(String data) {
+        log.info("Запрошено новое подтверждение '{}'", data);
+
+        EmailVerificationDto dto = EmailVerificationDto.jsonToDto(data);
 
         emailService.sendTextMessage(
                 dto.email(),

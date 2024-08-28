@@ -67,6 +67,4 @@ public class LinksControllerImpl implements LinksController {
     public void remove(@RequestParam("src_link") String srcLink) {        //todo стоит передавать src_link в url? Или зажирно использовать @RequestBody
         linksPairService.remove(srcLink);
     }
-
-
 }

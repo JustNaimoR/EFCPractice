@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotEmpty;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,7 @@ public record RegisterLinkDto(
         @UniqueAllies
         Set<String> allies
 ) {
-    // Проверка что dto содержит время, а значит действие пары временно
+    // Проверка, что dto содержит время, а значит действие пары временно
     public boolean isTemporary() {
         return operatingTime != null;
     }

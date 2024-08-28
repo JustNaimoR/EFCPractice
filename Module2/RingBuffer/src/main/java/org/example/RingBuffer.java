@@ -85,8 +85,7 @@ public class RingBuffer {
     private int incStartPoint() {
         IntUnaryOperator uo = (val) -> (val + 1) % buffer.length;
 
-        end.getAndUpdate(uo);
-        return end.get();       //todo ну вот тут конечно вопрос, т.к. другой поток может поменять end до того как вернется значение.
+        return end.updateAndGet(uo);
     }
 
     // Увеличить counter, вернуть новое значение
