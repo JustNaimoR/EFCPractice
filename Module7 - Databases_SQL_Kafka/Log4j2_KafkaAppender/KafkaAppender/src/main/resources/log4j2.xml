@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns:xi="http://www.w3.org/2001/XInclude" packages="edu.mod7.kafkaappender" status="WARN">
-    <KafkaAppender name="KafkaAppender" />
+<Configuration>
+    <Properties>
+        <Property name="layout">%style{%date{DEFAULT}}{yellow} %highlight{%-5level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green} %message</Property>
+    </Properties>
 
-    <Root level="INFO">
-        <AppenderRef ref="KafkaAppender" />
-    </Root>
+
+
+    <Appenders>
+        <Appender name="CustomAppender" topic="log-test" class="edu.mod7.kafkaappender.KafkaAppender">
+            <PatternLayout pattern="${layout}"/>
+<!--            <Property name="bootstrap.servers">localhost:2181</Property>-->
+        </Appender>
+    </Appenders>
+
+
+
+    <Loggers>
+        <Logger name="edu.mod7.kafkaappender">          <!-- ??? -->
+            <AppederRef ref="CustomAppender"/>
+        </Logger>
+
+        <Root>
+            <AppenderRef ref="CustomAppender"/>
+        </Root>
+    </Loggers>
 </Configuration>

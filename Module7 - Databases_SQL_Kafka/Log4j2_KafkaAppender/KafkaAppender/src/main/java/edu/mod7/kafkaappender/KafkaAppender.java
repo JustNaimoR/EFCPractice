@@ -1,9 +1,6 @@
 package edu.mod7.kafkaappender;
 
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.Core;
-import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
@@ -12,37 +9,36 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
 @Plugin(
-        name = "CustomLogAppender",
+        name = "CustomAppender",
         category = Core.CATEGORY_NAME,
-        elementType = Appender.ELEMENT_TYPE
+        elementType = Appender.ELEMENT_TYPE,
+        printObject = true
 )
-@Component
 public class KafkaAppender extends AbstractAppender {
     private KafkaProducerService kafkaProducerService;
 
-    public KafkaAppender(String name, Filter filter) {
-        super(name, filter, null);
+    private String KAFKA_LOG_TOPIC_NAME;        // my_logs
+
+    public KafkaAppender(String name, Filter filter, Layout<? extends Serializable> layout) {
+        super(name, filter, layout);
     }
 
-    private String KAFKA_LOG_TOPIC_NAME;        // my_logs
 
 
     @PluginFactory
     public static KafkaAppender createAppender(
             @PluginAttribute("name") String name,
-            @PluginElement("Filter") Filter filter
+            @PluginElement("Filter") Filter filter,
+            @PluginElement("Layout") Layout<? extends Serializable> layout
     ) {
-        return new KafkaAppender(name, filter);
+        return new KafkaAppender(name, filter, layout);
     }
 
     @Override
     public void append(LogEvent event) {
         System.out.println("It's working!!!");
-    }
-
-    @Autowired
-    public void kafkaProducerService(KafkaProducerService kafkaProducerService) {
-        this.kafkaProducerService = kafkaProducerService;
     }
 }
