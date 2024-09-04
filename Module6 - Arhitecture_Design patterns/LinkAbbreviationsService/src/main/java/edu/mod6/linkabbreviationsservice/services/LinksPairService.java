@@ -21,7 +21,7 @@ import java.util.Optional;
 public class LinksPairService {
     private final ShortenLinkIdSequenceService shortenLinkIdSequenceService;
     private final LinksPairRepository linksPairRepository;
-    private final TemporaryLinksPairService temporaryLinksPairService;
+//    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinkAlliesService linkAlliesService;
 
 
@@ -29,12 +29,9 @@ public class LinksPairService {
     @Transactional
     public RedirectView linkAllyAbbreviation(String ally) {
         LinksPair linksPair = linkAlliesService.getLinksPairByAlly(ally);
-        String shortLink = linksPair.getShortLink();
 
-        if (temporaryLinksPairService.linkIsTemporary(shortLink)) {
-            if (temporaryLinksPairService.linkIsExpired(shortLink))
-                throw new TempLinkExpiredException("Short link = '" + shortLink + "' is expired");
-        }
+        if (linksPair.isExpired())
+            throw new TempLinkExpiredException("Short link = '" + linksPair.getShortLink() + "' is expired");
 
         String srcLink = linksPair.getSrcLink();
 
@@ -43,14 +40,10 @@ public class LinksPairService {
 
     @Transactional
     public RedirectView linksAbbreviation(String shortLink) {
-        if (temporaryLinksPairService.linkIsTemporary(shortLink)) {
-            if (temporaryLinksPairService.linkIsExpired(shortLink))
-                throw new TempLinkExpiredException("Short link = '" + shortLink + "' is expired");
-        }
+        LinksPair linksPair = findByShortLink(shortLink);
 
-        LinksPair linksPair = linksPairRepository.findByShortLink(shortLink).orElseThrow(
-                () -> new LinksPairNotFoundException("Pair of links with shortLink = '" + shortLink + "' wasn't found")
-        );
+        if (linksPair.isExpired())
+            throw new TempLinkExpiredException("Short link = '" + linksPair.getShortLink() + "' is expired");
 
         String srcLink = linksPair.getSrcLink();
 
@@ -77,11 +70,20 @@ public class LinksPairService {
 
     @Transactional
     public void remove(String srcLink) {
-        Optional<LinksPair> opt = linksPairRepository.findBySrcLink(srcLink);
+        LinksPair deleted = findBySrcLink(srcLink);
 
-        if (opt.isEmpty())
-            throw new LinksPairNotFoundException("Pair of links with srcLink = '" + srcLink + "' wasn't found");
+        linksPairRepository.delete(deleted);
+    }
 
-        linksPairRepository.delete(opt.get());
+    public LinksPair findByShortLink(String shortLink) {
+        return linksPairRepository.findByShortLink(shortLink).orElseThrow(
+                () -> new LinksPairNotFoundException("Pair of links with shortLink = '" + shortLink + "' wasn't found")
+        );
+    }
+
+    public LinksPair findBySrcLink(String srcLink) {
+        return linksPairRepository.findBySrcLink(srcLink).orElseThrow(
+                () -> new LinksPairNotFoundException("Pair of links with srcLink = '" + srcLink + "' wasn't found")
+        );
     }
 }

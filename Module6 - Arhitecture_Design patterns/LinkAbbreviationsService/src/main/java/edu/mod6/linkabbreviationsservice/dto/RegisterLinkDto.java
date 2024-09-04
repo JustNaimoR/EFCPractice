@@ -5,11 +5,10 @@ import edu.mod6.linkabbreviationsservice.annotations.UniqueAllies;
 import edu.mod6.linkabbreviationsservice.annotations.UniqueSourceLink;
 import edu.mod6.linkabbreviationsservice.entities.LinkAllies;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
-import edu.mod6.linkabbreviationsservice.entities.TemporaryLinksPair;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,23 +38,36 @@ public record RegisterLinkDto(
 
     public LinksPair fromDto() {
         Set<LinkAllies> linkAllies = getLinkAllies();
+        ZonedDateTime dateTime = getDateTime();
 
-        if (isTemporary()) {
-            Instant expiresIn = Instant.now().plusMillis(operatingTime);
+        return new LinksPair(
+                null, srcLink, linkAllies, dateTime
+        );
 
-            return new TemporaryLinksPair(
-                    null, srcLink, expiresIn, linkAllies
-            );
-        } else {
-            return new LinksPair(
-                    null, srcLink, linkAllies
-            );
-        }
+//        if (isTemporary()) {
+//            Instant expiresIn = Instant.now().plusMillis(operatingTime);
+//
+//            return new TemporaryLinksPair(
+//                    null, srcLink, expiresIn, linkAllies
+//            );
+//        } else {
+//            return new LinksPair(
+//                    null, srcLink, linkAllies
+//            );
+//        }
     }
 
     public Set<LinkAllies> getLinkAllies() {
-        if (hasAllies())
+        if (hasAllies()) {
             return allies.stream().map(LinkAllies::new).collect(Collectors.toSet());
+        }
         return Collections.emptySet();
+    }
+
+    public ZonedDateTime getDateTime() {
+        if (isTemporary()) {
+            return ZonedDateTime.now().plusSeconds(operatingTime / 1000);
+        }
+        return null;
     }
 }

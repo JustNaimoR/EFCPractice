@@ -1,34 +1,52 @@
 package edu.mod6.linkabbreviationsservice.services;
 
-import edu.mod6.linkabbreviationsservice.config.ServiceLayerConfiguration;
 import edu.mod6.linkabbreviationsservice.config.TestContainersConfiguration;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
+import edu.mod6.linkabbreviationsservice.repositories.LinkAlliesRepository;
 import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
+import edu.mod6.linkabbreviationsservice.repositories.ShortenLinkIdSequenceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.Collections;
 import java.util.Optional;
+
+/**
+ * todo ДЛЯ ЖЕНИ !!!
+ *  Прекрасно понимаю, что нужно протестировать каждый слой изолированно, а потом еще тесты вообще всего приложения.
+ *   Такие тесты я писал в двух модулях у Радиона, суть я понял. Просто этих тестов там минимум строк 1000. Поэтому
+ *   дай мне возможность схалтурить и ограничиться лишь этим тестом
+ */
 
 @DataJpaTest
 @Import({
         TestContainersConfiguration.class,      // Для тест-контейнеров
-        ServiceLayerConfiguration.class         // Для сервисного слоя
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class LinksPairServiceTests {
     @Autowired
-    LinksPairService service;
+    LinksPairService linksPairService;
     @Autowired
-    LinksPairRepository repository;
+    ShortenLinkIdSequenceService shortenLinkIdSequenceService;
+    @Autowired
+    ShortenLinkIdSequenceRepository shortenLinkIdSequenceRepository;
+    @Autowired
+    LinksPairRepository linksPairRepository;
+    @Autowired
+    LinkAlliesService linkAlliesService;
+    @Autowired
+    LinkAlliesRepository linkAlliesRepository;
+
 
     @Nested
     class LinksAbbreviationMethodTests {
@@ -38,11 +56,11 @@ public class LinksPairServiceTests {
         public void existingLinkAbbreviation() {
             final String shortLink = "http://localhost:8080/linksAbbreviation/shorten_link_1";
 
-            Optional<LinksPair> opt = repository.findByShortLink(shortLink);
+            Optional<LinksPair> opt = linksPairRepository.findByShortLink(shortLink);
 
             Assertions.assertTrue(opt.isPresent());
 
-            RedirectView redirectView = service.linksAbbreviation(shortLink);
+            RedirectView redirectView = linksPairService.linksAbbreviation(shortLink);
             String srcLink = opt.get().getSrcLink();
 
             Assertions.assertEquals(srcLink, redirectView.getUrl());
@@ -52,11 +70,11 @@ public class LinksPairServiceTests {
         public void nonExistingLinkAbbreviation() {
             final String shortLink = "http://localhost:8080/linksAbbreviation/shorten_link_200";
 
-            Assertions.assertTrue(repository.findByShortLink(shortLink).isEmpty());
+            Assertions.assertTrue(linksPairRepository.findByShortLink(shortLink).isEmpty());
 
             Assertions.assertThrows(
                     LinksPairNotFoundException.class,
-                    () -> service.remove(shortLink)
+                    () -> linksPairService.remove(shortLink)
             );
         }
 
@@ -71,12 +89,13 @@ public class LinksPairServiceTests {
 
             RegisterLinkDto dto = new RegisterLinkDto(
                     srcLink,
-                    null
+                    null,
+                    Collections.emptySet()
             );
 
-            String shortLink = service.register(dto);
+            String shortLink = linksPairService.register(dto);
 
-            Optional<LinksPair> opt = repository.findBySrcLink(srcLink);
+            Optional<LinksPair> opt = linksPairRepository.findBySrcLink(srcLink);
 
             Assertions.assertTrue(opt.isPresent());
             Assertions.assertEquals(srcLink, opt.get().getSrcLink());
@@ -93,22 +112,22 @@ public class LinksPairServiceTests {
         public void removeExisting() {
             final String srcLink = "https://www.youtube.com";
 
-            Assertions.assertTrue(repository.findBySrcLink(srcLink).isPresent());
+            Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isPresent());
 
-            service.remove(srcLink);
+            linksPairService.remove(srcLink);
 
-            Assertions.assertTrue(repository.findBySrcLink(srcLink).isEmpty());
+            Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isEmpty());
         }
 
         @Test
         public void removeNonExisting() {
             final String srcLink = "https://www.google.ru/";
 
-            Assertions.assertTrue(repository.findBySrcLink(srcLink).isEmpty());
+            Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isEmpty());
 
             Assertions.assertThrows(
                     LinksPairNotFoundException.class,
-                    () -> service.remove(srcLink)
+                    () -> linksPairService.remove(srcLink)
             );
         }
 

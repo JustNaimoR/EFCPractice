@@ -4,7 +4,6 @@ import edu.mod6.linkabbreviationsservice.dto.LinksPairDto;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
 import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
 import edu.mod6.linkabbreviationsservice.services.LinksPairService;
-import edu.mod6.linkabbreviationsservice.services.TemporaryLinksPairService;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -13,15 +12,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/linksAbbreviation")
 @RequiredArgsConstructor
 public class LinksControllerImpl implements LinksController {
-    private final TemporaryLinksPairService temporaryLinksPairService;
+//    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinksPairService linksPairService;
     private final LinksPairDtoMapper linksPairDtoMapper;
+
+
 
     @GetMapping("/ally")
     public RedirectView linkAllies(@PathParam("ally") String ally) {
@@ -38,11 +38,13 @@ public class LinksControllerImpl implements LinksController {
     public ResponseEntity<String> register(@RequestBody @Valid RegisterLinkDto dto) {
         String shortLink = "http://localhost:8080/linksAbbreviation/";
 
-        if (dto.isTemporary()) {
-            shortLink += temporaryLinksPairService.register(dto);
-        } else {
-            shortLink += linksPairService.register(dto);
-        }
+        shortLink += linksPairService.register(dto);
+
+//        if (dto.isTemporary()) {
+//            shortLink += temporaryLinksPairService.register(dto);
+//        } else {
+//            shortLink += linksPairService.register(dto);
+//        }
 
         return ResponseEntity.ok(
                 shortLink
@@ -52,10 +54,7 @@ public class LinksControllerImpl implements LinksController {
     @Override
     @GetMapping("/all")
     public ResponseEntity<List<LinksPairDto>> getAll() {
-        List<LinksPairDto> set = Stream.concat(
-                        linksPairService.getAll().stream(),
-                        temporaryLinksPairService.getAll().stream()
-                )
+        List<LinksPairDto> set = linksPairService.getAll().stream()
                 .map(linksPairDtoMapper::toDto)
                 .toList();
 
