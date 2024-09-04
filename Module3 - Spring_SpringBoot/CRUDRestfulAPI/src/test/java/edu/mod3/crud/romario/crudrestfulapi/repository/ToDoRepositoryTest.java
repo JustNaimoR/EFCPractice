@@ -24,7 +24,6 @@ import java.util.List;
         RepositoryLayerConfiguration.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Transactional
 class ToDoRepositoryTest {
     @Autowired
     ToDoRepository repository;
@@ -41,6 +40,7 @@ class ToDoRepositoryTest {
 
 
     @Test
+    @Transactional
     void saveAndRetrieveId() {
         TodoTask task = TodoTask.builder()
                 .title("title")
