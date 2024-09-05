@@ -160,7 +160,8 @@ public class LinksPairServiceTests {
                     () -> linksPairService.remove(srcLink)
             );
         }
-
     }
+
+
 
 }
