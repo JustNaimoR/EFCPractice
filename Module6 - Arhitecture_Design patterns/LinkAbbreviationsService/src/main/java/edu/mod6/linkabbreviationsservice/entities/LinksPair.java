@@ -1,10 +1,7 @@
 package edu.mod6.linkabbreviationsservice.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -14,15 +11,18 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "links_pair")
-@Inheritance(strategy = InheritanceType.JOINED)
 @AllArgsConstructor
+@NoArgsConstructor
 public class LinksPair {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
     @Column(name = "short_link")
     private String shortLink;
 
-    @Column(name = "src_link", unique = true, nullable = false)
+    @Column(name = "src_link")
     private String srcLink;
 
     @OneToMany(mappedBy = "linksPair", cascade = CascadeType.ALL)
@@ -31,11 +31,6 @@ public class LinksPair {
     @Column(name = "expired_in")
     private ZonedDateTime expiredIn;
 
-    public LinksPair(String shortLink) {
-        this.shortLink = shortLink;
-    }
-
-    protected LinksPair() {}        // Сделано так, чтобы создание id было только через конструктор
 
     public boolean isTemporary() {
         return expiredIn != null;

@@ -19,7 +19,6 @@ import java.util.List;
 public class LinksControllerImpl implements LinksController {
 //    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinksPairService linksPairService;
-    private final LinksPairDtoMapper linksPairDtoMapper;
 
 
 
@@ -54,9 +53,7 @@ public class LinksControllerImpl implements LinksController {
     @Override
     @GetMapping("/all")
     public ResponseEntity<List<LinksPairDto>> getAll() {
-        List<LinksPairDto> set = linksPairService.getAll().stream()
-                .map(linksPairDtoMapper::toDto)
-                .toList();
+        List<LinksPairDto> set = linksPairService.getAllToDto();
 
         return ResponseEntity.ok(set);
     }

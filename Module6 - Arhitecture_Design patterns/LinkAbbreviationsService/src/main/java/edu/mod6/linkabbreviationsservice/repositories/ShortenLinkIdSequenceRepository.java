@@ -2,11 +2,16 @@ package edu.mod6.linkabbreviationsservice.repositories;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
 
 @Repository
+@AllArgsConstructor
+@NoArgsConstructor
 public class ShortenLinkIdSequenceRepository {
     @PersistenceContext
     private EntityManager entityManager;

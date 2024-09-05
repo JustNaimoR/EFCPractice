@@ -2,11 +2,15 @@ package edu.mod6.linkabbreviationsservice.services;
 
 import edu.mod6.linkabbreviationsservice.config.TestContainersConfiguration;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
+import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
+import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapperImpl;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
 import edu.mod6.linkabbreviationsservice.repositories.LinkAlliesRepository;
 import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
 import edu.mod6.linkabbreviationsservice.repositories.ShortenLinkIdSequenceRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
@@ -34,18 +38,44 @@ import java.util.Optional;
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class LinksPairServiceTests {
-    @Autowired
+
     LinksPairService linksPairService;
-    @Autowired
     ShortenLinkIdSequenceService shortenLinkIdSequenceService;
-    @Autowired
+    LinkAlliesService linkAlliesService;
     ShortenLinkIdSequenceRepository shortenLinkIdSequenceRepository;
+    LinksPairDtoMapperImpl linksPairDtoMapper;
+
     @Autowired
     LinksPairRepository linksPairRepository;
     @Autowired
-    LinkAlliesService linkAlliesService;
-    @Autowired
     LinkAlliesRepository linkAlliesRepository;
+    @Autowired
+    EntityManager entityManager;
+
+    @PostConstruct
+    void serviceInit() {
+        linksPairDtoMapper = new LinksPairDtoMapperImpl();
+
+        shortenLinkIdSequenceRepository = new ShortenLinkIdSequenceRepository(
+                entityManager
+        );
+
+        linkAlliesService = new LinkAlliesService(
+                linkAlliesRepository
+        );
+
+        shortenLinkIdSequenceService = new ShortenLinkIdSequenceService(
+                shortenLinkIdSequenceRepository
+        );
+
+        linksPairService = new LinksPairService(
+                shortenLinkIdSequenceService,
+                linksPairRepository,
+                linkAlliesService,
+                linksPairDtoMapper
+        );
+    }
+
 
 
     @Nested

@@ -41,7 +41,7 @@ public record RegisterLinkDto(
         ZonedDateTime dateTime = getDateTime();
 
         return new LinksPair(
-                null, srcLink, linkAllies, dateTime
+                0, null, srcLink, linkAllies, dateTime
         );
 
 //        if (isTemporary()) {

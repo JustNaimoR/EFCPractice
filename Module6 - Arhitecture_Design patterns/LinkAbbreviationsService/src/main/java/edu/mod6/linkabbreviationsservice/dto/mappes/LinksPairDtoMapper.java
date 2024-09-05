@@ -20,7 +20,7 @@ public abstract class LinksPairDtoMapper {
                                 .map(LinkAllies::getAllyName)
                                 .collect(Collectors.toSet())
                 )
-                .expiredIn(     //todo Ну выглядит так себе, но как тогда сделать это красиво...
+                .expiredIn(
                         linksPair.getExpiredIn()
                 )
                 .build();

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface LinksPairRepository extends JpaRepository<LinksPair, String> {
+public interface LinksPairRepository extends JpaRepository<LinksPair, Integer> {
 
     @Query(nativeQuery = true, value = "select nextval('shorten_link_id_seq')")
     Long getNextShortenLinkSequenceValue();
@@ -16,5 +16,4 @@ public interface LinksPairRepository extends JpaRepository<LinksPair, String> {
     Optional<LinksPair> findBySrcLink(String srcLink);
 
     Optional<LinksPair> findByShortLink(String shortLink);
-
 }

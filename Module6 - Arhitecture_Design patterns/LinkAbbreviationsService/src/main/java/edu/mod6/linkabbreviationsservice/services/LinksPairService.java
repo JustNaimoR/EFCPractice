@@ -1,6 +1,8 @@
 package edu.mod6.linkabbreviationsservice.services;
 
+import edu.mod6.linkabbreviationsservice.dto.LinksPairDto;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
+import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
 import edu.mod6.linkabbreviationsservice.exceptions.TempLinkExpiredException;
@@ -23,7 +25,7 @@ public class LinksPairService {
     private final LinksPairRepository linksPairRepository;
 //    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinkAlliesService linkAlliesService;
-
+    private final LinksPairDtoMapper linksPairDtoMapper;
 
 
     @Transactional
@@ -85,5 +87,11 @@ public class LinksPairService {
         return linksPairRepository.findBySrcLink(srcLink).orElseThrow(
                 () -> new LinksPairNotFoundException("Pair of links with srcLink = '" + srcLink + "' wasn't found")
         );
+    }
+
+    public List<LinksPairDto> getAllToDto() {
+        return getAll().stream()
+                .map(linksPairDtoMapper::toDto)
+                .toList();
     }
 }
