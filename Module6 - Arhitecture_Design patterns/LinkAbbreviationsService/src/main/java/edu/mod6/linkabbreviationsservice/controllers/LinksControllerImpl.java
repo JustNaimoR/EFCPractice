@@ -2,7 +2,6 @@ package edu.mod6.linkabbreviationsservice.controllers;
 
 import edu.mod6.linkabbreviationsservice.dto.LinksPairDto;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
-import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
 import edu.mod6.linkabbreviationsservice.services.LinksPairService;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
@@ -54,6 +53,6 @@ public class LinksControllerImpl implements LinksController {
     @Override
     @DeleteMapping("/remove")
     public void remove(@RequestParam("src_link") String srcLink) {        //todo стоит передавать src_link в url? Или зажирно использовать @RequestBody
-        linksPairService.remove(srcLink);
+        linksPairService.deleteBySrcLink(srcLink);
     }
 }

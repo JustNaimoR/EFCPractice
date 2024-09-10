@@ -8,6 +8,7 @@ import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
 import edu.mod6.linkabbreviationsservice.exceptions.TempLinkExpiredException;
 import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class LinksPairService {
     private final LinksPairRepository linksPairRepository;
     private final LinkAlliesService linkAlliesService;
     private final LinksPairDtoMapper linksPairDtoMapper;
+
 
 
     @Transactional
@@ -71,10 +73,12 @@ public class LinksPairService {
     }
 
     @Transactional
-    public void remove(String srcLink) {
-        LinksPair deleted = findBySrcLink(srcLink);
-
-        linksPairRepository.removeById(deleted.getId());
+    public void deleteBySrcLink(String srcLink) throws EntityNotFoundException {
+        try {
+            linksPairRepository.deleteBySrcLink(srcLink);
+        } catch (EntityNotFoundException exc) {
+            throw new LinksPairNotFoundException("Pair of links with srcLink = '" + srcLink + "' wasn't found");
+        }
     }
 
     @Transactional
