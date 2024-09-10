@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
@@ -29,7 +31,7 @@ public class LinksPair {
     private Set<LinkAllies> allies;
 
     @Column(name = "expired_in")
-    private ZonedDateTime expiredIn;
+    private OffsetDateTime expiredIn;
 
 
     public boolean isTemporary() {
@@ -37,6 +39,6 @@ public class LinksPair {
     }
 
     public boolean isExpired() {
-        return isTemporary() && expiredIn.isBefore(ZonedDateTime.now());
+        return isTemporary() && expiredIn.isBefore(OffsetDateTime.now());
     }
 }

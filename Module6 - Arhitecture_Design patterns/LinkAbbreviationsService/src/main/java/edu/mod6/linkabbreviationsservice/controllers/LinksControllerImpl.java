@@ -17,7 +17,6 @@ import java.util.List;
 @RequestMapping("/linksAbbreviation")
 @RequiredArgsConstructor
 public class LinksControllerImpl implements LinksController {
-//    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinksPairService linksPairService;
 
 
@@ -38,12 +37,6 @@ public class LinksControllerImpl implements LinksController {
         String shortLink = "http://localhost:8080/linksAbbreviation/";
 
         shortLink += linksPairService.register(dto);
-
-//        if (dto.isTemporary()) {
-//            shortLink += temporaryLinksPairService.register(dto);
-//        } else {
-//            shortLink += linksPairService.register(dto);
-//        }
 
         return ResponseEntity.ok(
                 shortLink

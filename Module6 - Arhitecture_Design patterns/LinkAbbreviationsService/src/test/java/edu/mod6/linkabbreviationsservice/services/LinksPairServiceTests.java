@@ -11,6 +11,7 @@ import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
 import edu.mod6.linkabbreviationsservice.repositories.ShortenLinkIdSequenceRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
@@ -132,6 +133,19 @@ public class LinksPairServiceTests {
             Assertions.assertEquals(shortLink, opt.get().getShortLink());
         }
 
+        @Test
+        @Sql("/sql/add_one_linkPair.sql")
+        void uniqueViolationRegistration() {
+            final String srcLink = "https://www.youtube.com";
+
+            RegisterLinkDto dto = new RegisterLinkDto(
+                    srcLink,
+                    null,
+                    Collections.emptySet()
+            );
+
+            Assertions.assertThrows(ValidationException.class, () -> linksPairService.register(dto));
+        }
     }
 
     @Nested
@@ -146,7 +160,8 @@ public class LinksPairServiceTests {
 
             linksPairService.remove(srcLink);
 
-            Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isEmpty());
+            Assertions.assertThrows(LinksPairNotFoundException.class, () -> linksPairService.findBySrcLink(srcLink));
+//            Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isEmpty());
         }
 
         @Test
