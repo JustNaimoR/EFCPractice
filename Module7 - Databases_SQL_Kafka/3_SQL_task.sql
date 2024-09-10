@@ -108,11 +108,11 @@ with recursive years (year) as (
                groups as (
                    select * from artist a
                                      join artist_type at on a.type = at.id
-                   where at.name = 'Group'
+                   where at.name = 'Group' and begin_date_year is not null and end_date_year is not null
                )
 
 select concat(year, 's') as DECADE,
-       (select count(*) from groups where begin_date_year between year and year + 10) as NUM_ARTIST_GROUP
+       (select count(*) from groups where begin_date_year between year and year + 10 and end_date_year > year + 10) as NUM_ARTIST_GROUP
 from years
 order by 1;
 
