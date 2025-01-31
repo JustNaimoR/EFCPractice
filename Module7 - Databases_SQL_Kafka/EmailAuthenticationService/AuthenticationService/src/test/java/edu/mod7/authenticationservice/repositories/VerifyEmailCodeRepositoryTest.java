@@ -42,4 +42,5 @@ class VerifyEmailCodeRepositoryTest {
                 repository.findByEmail(email).isEmpty()
         );
     }
+
 }
