@@ -2,7 +2,6 @@ package edu.mod6.linkabbreviationsservice.controllers;
 
 import edu.mod6.linkabbreviationsservice.dto.LinksPairDto;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
-import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
 import edu.mod6.linkabbreviationsservice.services.LinksPairService;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
@@ -17,7 +16,6 @@ import java.util.List;
 @RequestMapping("/linksAbbreviation")
 @RequiredArgsConstructor
 public class LinksControllerImpl implements LinksController {
-//    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinksPairService linksPairService;
 
 
@@ -39,12 +37,6 @@ public class LinksControllerImpl implements LinksController {
 
         shortLink += linksPairService.register(dto);
 
-//        if (dto.isTemporary()) {
-//            shortLink += temporaryLinksPairService.register(dto);
-//        } else {
-//            shortLink += linksPairService.register(dto);
-//        }
-
         return ResponseEntity.ok(
                 shortLink
         );
@@ -61,6 +53,6 @@ public class LinksControllerImpl implements LinksController {
     @Override
     @DeleteMapping("/remove")
     public void remove(@RequestParam("src_link") String srcLink) {        //todo стоит передавать src_link в url? Или зажирно использовать @RequestBody
-        linksPairService.remove(srcLink);
+        linksPairService.deleteBySrcLink(srcLink);
     }
 }

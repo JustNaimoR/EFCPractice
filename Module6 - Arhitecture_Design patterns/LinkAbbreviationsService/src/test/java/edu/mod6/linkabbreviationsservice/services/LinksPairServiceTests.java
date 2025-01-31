@@ -2,7 +2,6 @@ package edu.mod6.linkabbreviationsservice.services;
 
 import edu.mod6.linkabbreviationsservice.config.TestContainersConfiguration;
 import edu.mod6.linkabbreviationsservice.dto.RegisterLinkDto;
-import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapper;
 import edu.mod6.linkabbreviationsservice.dto.mappes.LinksPairDtoMapperImpl;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
@@ -11,13 +10,13 @@ import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
 import edu.mod6.linkabbreviationsservice.repositories.ShortenLinkIdSequenceRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.servlet.view.RedirectView;
@@ -104,7 +103,7 @@ public class LinksPairServiceTests {
 
             Assertions.assertThrows(
                     LinksPairNotFoundException.class,
-                    () -> linksPairService.remove(shortLink)
+                    () -> linksPairService.deleteBySrcLink(shortLink)
             );
         }
 
@@ -132,6 +131,19 @@ public class LinksPairServiceTests {
             Assertions.assertEquals(shortLink, opt.get().getShortLink());
         }
 
+        @Test
+        @Sql("/sql/add_one_linkPair.sql")
+        void uniqueViolationRegistration() {
+            final String srcLink = "https://www.youtube.com";
+
+            RegisterLinkDto dto = new RegisterLinkDto(
+                    srcLink,
+                    null,
+                    Collections.emptySet()
+            );
+
+            Assertions.assertThrows(ValidationException.class, () -> linksPairService.register(dto));
+        }
     }
 
     @Nested
@@ -144,9 +156,9 @@ public class LinksPairServiceTests {
 
             Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isPresent());
 
-            linksPairService.remove(srcLink);
+            linksPairService.deleteBySrcLink(srcLink);
 
-            Assertions.assertTrue(linksPairRepository.findBySrcLink(srcLink).isEmpty());
+            Assertions.assertThrows(LinksPairNotFoundException.class, () -> linksPairService.findBySrcLink(srcLink));
         }
 
         @Test
@@ -157,11 +169,9 @@ public class LinksPairServiceTests {
 
             Assertions.assertThrows(
                     LinksPairNotFoundException.class,
-                    () -> linksPairService.remove(srcLink)
+                    () -> linksPairService.deleteBySrcLink(srcLink)
             );
         }
     }
-
-
 
 }

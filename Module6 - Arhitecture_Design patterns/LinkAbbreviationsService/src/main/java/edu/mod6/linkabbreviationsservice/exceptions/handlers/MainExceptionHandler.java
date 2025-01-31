@@ -2,6 +2,7 @@ package edu.mod6.linkabbreviationsservice.exceptions.handlers;
 
 import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
 import edu.mod6.linkabbreviationsservice.exceptions.TempLinkExpiredException;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -49,4 +50,13 @@ public class MainExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exc) {
+        return new ResponseEntity<>(
+                new ErrorResponse(
+                        exc.getMessage(), Instant.now()
+                ),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }

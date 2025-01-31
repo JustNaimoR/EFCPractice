@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS links_pair
 CREATE TABLE IF NOT EXISTS temporary_links_pair
 (
     short_link VARCHAR(255) NOT NULL,
-    expired_in TIMESTAMP WITHOUT TIME ZONE,
+    expired_in TIME WITHOUT TIME ZONE,
     CONSTRAINT pk_temporary_links_pair PRIMARY KEY (short_link)
 );
 

@@ -16,4 +16,8 @@ public interface LinksPairRepository extends JpaRepository<LinksPair, Integer> {
     Optional<LinksPair> findBySrcLink(String srcLink);
 
     Optional<LinksPair> findByShortLink(String shortLink);
+
+    void deleteBySrcLink(String srcLink);
+
+    boolean existsBySrcLink(String srcLink);
 }

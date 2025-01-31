@@ -17,6 +17,7 @@ import java.util.Set;
 public class LinkAlliesService {
     private final LinkAlliesRepository linkAlliesRepository;
 
+    @Transactional
     public void save(LinkAllies linkAllies) {
         linkAlliesRepository.save(linkAllies);
     }
@@ -26,7 +27,7 @@ public class LinkAlliesService {
         alliesSet.forEach(this::save);
     }
 
-    public LinksPair getLinksPairByAlly(String ally) {
+    public LinksPair getLinksPairByAlly(String ally) throws AllyNotFoundException {
         return linkAlliesRepository.getLinksPairByAlly(ally).orElseThrow(
                 () -> new AllyNotFoundException("Ally '" + ally + "' was not found")
         );

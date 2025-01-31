@@ -8,13 +8,15 @@ import edu.mod6.linkabbreviationsservice.exceptions.LinksPairNotFoundException;
 import edu.mod6.linkabbreviationsservice.exceptions.TempLinkExpiredException;
 import edu.mod6.linkabbreviationsservice.repositories.LinksPairRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
-import java.util.Optional;
 
 
 
@@ -23,13 +25,13 @@ import java.util.Optional;
 public class LinksPairService {
     private final ShortenLinkIdSequenceService shortenLinkIdSequenceService;
     private final LinksPairRepository linksPairRepository;
-//    private final TemporaryLinksPairService temporaryLinksPairService;
     private final LinkAlliesService linkAlliesService;
     private final LinksPairDtoMapper linksPairDtoMapper;
 
 
+
     @Transactional
-    public RedirectView linkAllyAbbreviation(String ally) {
+    public RedirectView linkAllyAbbreviation(String ally) throws TempLinkExpiredException {
         LinksPair linksPair = linkAlliesService.getLinksPairByAlly(ally);
 
         if (linksPair.isExpired())
@@ -41,7 +43,7 @@ public class LinksPairService {
     }
 
     @Transactional
-    public RedirectView linksAbbreviation(String shortLink) {
+    public RedirectView linksAbbreviation(String shortLink) throws TempLinkExpiredException {
         LinksPair linksPair = findByShortLink(shortLink);
 
         if (linksPair.isExpired())
@@ -61,7 +63,7 @@ public class LinksPairService {
         linksPair.setShortLink(shortenLink);
         linksPair.getAllies().forEach(ally -> ally.setLinksPair(linksPair));
 
-        linksPairRepository.save(linksPair);
+        save(linksPair);
 
         return shortenLink;
     }
@@ -71,19 +73,30 @@ public class LinksPairService {
     }
 
     @Transactional
-    public void remove(String srcLink) {
-        LinksPair deleted = findBySrcLink(srcLink);
-
-        linksPairRepository.delete(deleted);
+    public void deleteBySrcLink(String srcLink) throws EntityNotFoundException {
+        try {
+            linksPairRepository.deleteBySrcLink(srcLink);
+        } catch (EntityNotFoundException exc) {
+            throw new LinksPairNotFoundException("Pair of links with srcLink = '" + srcLink + "' wasn't found");
+        }
     }
 
-    public LinksPair findByShortLink(String shortLink) {
+    @Transactional
+    public void save(LinksPair linksPair) throws ValidationException {
+        try {
+            linksPairRepository.save(linksPair);
+        } catch (DataIntegrityViolationException exc) {
+            throw new ValidationException("Unique constraint violation");
+        }
+    }
+
+    public LinksPair findByShortLink(String shortLink) throws LinksPairNotFoundException {
         return linksPairRepository.findByShortLink(shortLink).orElseThrow(
                 () -> new LinksPairNotFoundException("Pair of links with shortLink = '" + shortLink + "' wasn't found")
         );
     }
 
-    public LinksPair findBySrcLink(String srcLink) {
+    public LinksPair findBySrcLink(String srcLink) throws LinksPairNotFoundException {
         return linksPairRepository.findBySrcLink(srcLink).orElseThrow(
                 () -> new LinksPairNotFoundException("Pair of links with srcLink = '" + srcLink + "' wasn't found")
         );

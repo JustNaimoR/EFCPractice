@@ -1,13 +1,12 @@
 package edu.mod6.linkabbreviationsservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import edu.mod6.linkabbreviationsservice.annotations.UniqueAllies;
-import edu.mod6.linkabbreviationsservice.annotations.UniqueSourceLink;
 import edu.mod6.linkabbreviationsservice.entities.LinkAllies;
 import edu.mod6.linkabbreviationsservice.entities.LinksPair;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Set;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 public record RegisterLinkDto(
         @JsonProperty(value = "src_link", required = true)
         @NotEmpty
-        @UniqueSourceLink
         String srcLink,
 
         @JsonProperty(value = "expired_time")
@@ -24,7 +22,6 @@ public record RegisterLinkDto(
         Long operatingTime,
 
         @JsonProperty(value = "allies")
-        @UniqueAllies
         Set<String> allies
 ) {
     // Проверка, что dto содержит время, а значит действие пары временно
@@ -38,23 +35,11 @@ public record RegisterLinkDto(
 
     public LinksPair fromDto() {
         Set<LinkAllies> linkAllies = getLinkAllies();
-        ZonedDateTime dateTime = getDateTime();
+        OffsetDateTime dateTime = getDateTime();
 
         return new LinksPair(
                 0, null, srcLink, linkAllies, dateTime
         );
-
-//        if (isTemporary()) {
-//            Instant expiresIn = Instant.now().plusMillis(operatingTime);
-//
-//            return new TemporaryLinksPair(
-//                    null, srcLink, expiresIn, linkAllies
-//            );
-//        } else {
-//            return new LinksPair(
-//                    null, srcLink, linkAllies
-//            );
-//        }
     }
 
     public Set<LinkAllies> getLinkAllies() {
@@ -64,9 +49,9 @@ public record RegisterLinkDto(
         return Collections.emptySet();
     }
 
-    public ZonedDateTime getDateTime() {
+    public OffsetDateTime getDateTime() {
         if (isTemporary()) {
-            return ZonedDateTime.now().plusSeconds(operatingTime / 1000);
+            return OffsetDateTime.now().plusSeconds(operatingTime / 1000);
         }
         return null;
     }
